@@ -1,7 +1,6 @@
 # EchoStateNetwork-Tensorflow
 Minimal and Simple Tensorflow implementation of EchoStateNetwork
-## example
-![data](https://raw.githubusercontent.com/k-kotera/EchoStateNetwork-Tensorflow/master/images/data.png)
+### short introduction
 ```python
 #Run ESN
 with tf.Session() as example_sess:
