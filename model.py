@@ -83,8 +83,11 @@ class EchoStateNetwork():
     leaking_rate : leaking rate α ∈ (0, 1]  (float, default=0.9)
     """
     
-    def __init__(self, sess, units=30, sr_scale=1.0, density=0.2, leaking_rate=0.9):
-        self.sess = sess
+    def __init__(self, sess=None, units=30, sr_scale=1.0, density=0.2, leaking_rate=0.9):
+        if sess == None:
+            self.sess = tf.Session()
+        else:
+            self.sess = sess
         self.units = units
         self.sr_scale = sr_scale
         self.density = density
@@ -94,7 +97,7 @@ class EchoStateNetwork():
     def fit(self, x, y, beta=0.01):     
         """
         build and fit the model according to the given training data.
-
+        
         Parameters
         x : input data with shape (batch_size, timesteps, input_dim)
         y : target data with shape (batch_size, output_dim)
@@ -126,7 +129,7 @@ class EchoStateNetwork():
         W_out_trained = Tikhonov_regularization(x_n_train, y, beta=self.beta)
         self.sess.run(self.W_out.assign(W_out_trained,read_value=False))
         self.trained = True
-
+    
     def predict(self, x):
         """
         perform Regression on samples x.
@@ -142,6 +145,33 @@ class EchoStateNetwork():
         if len(InputShape_for_predict) != 3:
             raise ValueError("Error: Input data should be 3D tensor with shape (batch_size, timesteps, input_dim).")
         if InputShape_for_predict[1:] != self.InputShape[1:]:
-            raise ValueError("timesteps or input_dim of x shape(batch_size, timesteps, input_dim) should be the same as trained one.")        
+            raise ValueError("timesteps or input_dim of x shape(batch_size, timesteps, input_dim) should be the same as trained one.")
+        if self.trained == False:
+            raise ValueError("Error: Make the ESN model fit before")
+            
         y_hat = self.sess.run(self.Y, feed_dict={self.u_n: x})
         return y_hat
+    
+    def MSE_Score(self, x, y):
+        """
+        calculate MSE according to the given labels and predict values.
+
+        Parameters
+        x : input data with shape (batch_size, timesteps, input_dim)
+        y : target data with shape (batch_size, output_dim)
+        
+        Returns
+        MSE : predicted values for samples x(batch_size, output_dim)
+        
+        """
+        InputShape_for_predict = x.shape
+        if len(InputShape_for_predict) != 3:
+            raise ValueError("Error: Input data should be 3D tensor with shape (batch_size, timesteps, input_dim).")
+        if InputShape_for_predict[1:] != self.InputShape[1:]:
+            raise ValueError("timesteps or input_dim of x shape(batch_size, timesteps, input_dim) should be the same as trained one.")
+        if self.trained == False:
+            raise ValueError("Error: Make the ESN model fit before")
+        y_tf = tf.constant(y)
+        MSE = tf.reduce_mean(tf.square(y_tf - self.Y))
+        MSE_ = self.sess.run(MSE, feed_dict={self.u_n: x})        
+        return MSE_
