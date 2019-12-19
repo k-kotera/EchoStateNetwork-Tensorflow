@@ -172,7 +172,7 @@ class EchoStateNetwork():
             raise ValueError("timesteps or input_dim of x shape(batch_size, timesteps, input_dim) should be the same as trained one.")
         if len(OutputShape_for_score) != 2:
             raise ValueError("Error: Target data should be 2D tensor with shape (batch_size, output_dim).")
-        if InputShape_for_predict[1:] != self.OutputShape_for_score[1:]:
+        if OutputShape_for_score[1:] != self.InputShape[1:]:
             raise ValueError("output_dim of y shape(batch_size, output_dim) should be the same as trained one.")
             
         if self.trained == False:
