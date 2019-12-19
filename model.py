@@ -164,11 +164,17 @@ class EchoStateNetwork():
         MSE : predicted values for samples x(batch_size, output_dim)
         
         """
-        InputShape_for_predict = x.shape
-        if len(InputShape_for_predict) != 3:
+        InputShape_for_score = x.shape
+        OutputShape_for_score = y.shape
+        if len(InputShape_for_score) != 3:
             raise ValueError("Error: Input data should be 3D tensor with shape (batch_size, timesteps, input_dim).")
-        if InputShape_for_predict[1:] != self.InputShape[1:]:
+        if InputShape_for_score[1:] != self.InputShape[1:]:
             raise ValueError("timesteps or input_dim of x shape(batch_size, timesteps, input_dim) should be the same as trained one.")
+        if len(OutputShape_for_score) != 2:
+            raise ValueError("Error: Target data should be 2D tensor with shape (batch_size, output_dim).")
+        if InputShape_for_predict[1:] != self.OutputShape_for_score[1:]:
+            raise ValueError("output_dim of y shape(batch_size, output_dim) should be the same as trained one.")
+            
         if self.trained == False:
             raise ValueError("Error: Make the ESN model fit before")
         y_tf = tf.constant(y)
