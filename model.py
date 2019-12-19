@@ -37,7 +37,7 @@ class ESNCell(tf.keras.layers.Layer):
             mask = tf.cast(tf.math.less_equal(tf.random.uniform(shape), self._density), dtype) #sparse 0-1 matrix
             w_init_sparse = w_init * mask
             Eigenvalues_w_init, Eigenvectors_w_init = tf.linalg.eigh(w_init_sparse)
-            Spectral_radius = tf.math.reduce_max(Eigenvalues_w_init)
+            Spectral_radius = tf.math.reduce_max(tf.abs(Eigenvalues_w_init))
             w_init_sparse_r = w_init_sparse * self._sr_scale / Spectral_radius #normalization based on Spectral_radius
             return w_init_sparse_r
         
